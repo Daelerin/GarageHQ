@@ -279,4 +279,4 @@ sudo python3 install.py --reinstall --keep-data
 
 ## Licence
 
-GPL-3.0 — voir [LICENSE](../../LICENSE) pour le texte complet.
+GPL-3.0 — voir [LICENSE](./LICENSE) pour le texte complet.
