@@ -8,7 +8,8 @@ Scripts Python pour déployer et gérer [Garage](https://garagehq.deuxfleurs.fr/
 
 ```
 GarageHQ/Install/
-├── install.py      # Installation, désinstallation et réinstallation de Garage
+├── garage.py       # Installation, désinstallation et réinstallation de Garage (orienté objet)
+├── install.py      # Version standard/procédurale de garage.py
 ├── storage.py      # Configuration du stockage SAN FC (multipath + LVM)
 └── requirements.txt
 ```
@@ -33,7 +34,7 @@ requests
 
 ---
 
-## install.py — Gestionnaire Garage
+## garage.py — Gestionnaire Garage
 
 Installe, désinstalle ou réinstalle Garage ainsi que l'interface web optionnelle `garage-webui`.
 
@@ -52,19 +53,19 @@ Installe, désinstalle ou réinstalle Garage ainsi que l'interface web optionnel
 
 ```bash
 # Installation complète
-sudo python3 install.py --install
+sudo python3 garage.py --install
 
 # Désinstallation (supprime tout)
-sudo python3 install.py --uninstall
+sudo python3 garage.py --uninstall
 
 # Désinstallation en conservant les données
-sudo python3 install.py --uninstall --keep-data
+sudo python3 garage.py --uninstall --keep-data
 
 # Réinstallation complète (supprime et réinstalle)
-sudo python3 install.py --reinstall
+sudo python3 garage.py --reinstall
 
 # Réinstallation en conservant les données
-sudo python3 install.py --reinstall --keep-data
+sudo python3 garage.py --reinstall --keep-data
 ```
 
 ### Déroulement de l'installation
@@ -169,7 +170,7 @@ sudo python3 storage.py --teardown --keep-data
 sudo python3 storage.py --setup
 
 # 2. Installer Garage sur les volumes créés
-sudo python3 install.py --install
+sudo python3 garage.py --install
 ```
 
 ### Dépendances système
@@ -210,9 +211,9 @@ Filesystem          ← xfs (données) / ext4 (métadonnées)
 
 ## Architecture du code
 
-Les deux scripts partagent la même philosophie orientée objet :
+### garage.py — Architecture orientée objet (POO)
 
-### install.py
+`garage.py` est conçu selon une architecture orientée objet stricte : chaque responsabilité est encapsulée dans une classe dédiée, ce qui facilite la lisibilité, la maintenance et l'extensibilité du code.
 
 | Classe | Rôle |
 |--------|------|
@@ -223,11 +224,11 @@ Les deux scripts partagent la même philosophie orientée objet :
 | `GarageUninstaller` | Désinstallation propre en 5 étapes |
 | `GarageReinstaller` | Orchestration uninstall + collect + install |
 
-### storage.py
+### storage.py — Architecture orientée objet (POO)
+
+`storage.py` suit la même philosophie orientée objet, avec une séparation claire entre détection, configuration et orchestration.
 
 | Classe | Rôle |
-|--------|------|
-| `StorageConfig` | Dataclass de configuration stockage |
 | `StorageDetector` | Détection des LUNs FC disponibles |
 | `MultipathConfigurator` | Installation et configuration de multipathd |
 | `LVMConfigurator` | Création PV → VG → LV |
@@ -245,7 +246,34 @@ Les deux scripts partagent la même philosophie orientée objet :
 | v1.x | `replication_mode = "none"` | v1.0.9 |
 | v2.x+ | `replication_factor = 1` | v1.1.0+ |
 
-Le script `install.py` détecte automatiquement la version et adapte la configuration en conséquence.
+Le script `garage.py` détecte automatiquement la version et adapte la configuration en conséquence.
+
+---
+
+## install.py — Version standard
+
+`install.py` est la version **procédurale** de `garage.py` : elle offre exactement les mêmes fonctionnalités mais avec un code plus linéaire et sans architecture de classes. Elle est plus accessible pour qui souhaite lire ou modifier le script rapidement.
+
+### Usage
+
+```bash
+# Installation complète
+sudo python3 install.py --install
+
+# Désinstallation (supprime tout)
+sudo python3 install.py --uninstall
+
+# Désinstallation en conservant les données
+sudo python3 install.py --uninstall --keep-data
+
+# Réinstallation complète
+sudo python3 install.py --reinstall
+
+# Réinstallation en conservant les données
+sudo python3 install.py --reinstall --keep-data
+```
+
+> Les deux scripts sont interchangeables. `garage.py` est recommandé pour la maintenabilité à long terme.
 
 ---
 
